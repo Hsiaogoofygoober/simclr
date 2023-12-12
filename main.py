@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import torchvision
 import argparse
+from torchvision.datasets import ImageFolder
 
 # distributed training
 import torch.distributed as dist
@@ -75,6 +76,11 @@ def main(gpu, args):
             args.dataset_dir,
             download=True,
             transform=TransformsSimCLR(size=args.image_size),
+        )
+    elif args.dataset == "C101":
+        train_dataset = ImageFolder(
+            '/home/zach/C101/train',
+            transform = TransformsSimCLR(size=args.image_size)
         )
     else:
         raise NotImplementedError
