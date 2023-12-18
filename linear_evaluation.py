@@ -10,6 +10,7 @@ from simclr.modules import LogisticRegression, get_resnet
 from simclr.modules.transformations import TransformsSimCLR
 
 from utils import yaml_config_hook
+from torchvision.datasets import ImageFolder
 
 
 def inference(loader, simclr_model, device):
@@ -108,6 +109,14 @@ def test(args, loader, simclr_model, model, criterion, optimizer):
 
     return loss_epoch, accuracy_epoch
 
+def rename_keys(state_dict, prefix='module.'):
+    new_state_dict = {}
+    for key, value in state_dict.items():
+        new_key = key.replace(prefix, '')  # Remove the 'module.' prefix
+        new_state_dict[new_key] = value
+
+    return new_state_dict
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="SimCLR")
@@ -144,6 +153,15 @@ if __name__ == "__main__":
             download=True,
             transform=TransformsSimCLR(size=args.image_size).test_transform,
         )
+    elif args.dataset == "C101":
+        train_dataset = ImageFolder(
+            '/home/zach/C101/train',
+            transform = TransformsSimCLR(size=args.image_size)
+        )
+        test_dataset = ImageFolder(
+            '/home/zach/C101/test',
+            transform = TransformsSimCLR(size=args.image_size)
+        )
     else:
         raise NotImplementedError
 
@@ -169,7 +187,9 @@ if __name__ == "__main__":
     # load pre-trained model from checkpoint
     simclr_model = SimCLR(encoder, args.projection_dim, n_features)
     model_fp = os.path.join(args.model_path, "checkpoint_{}.tar".format(args.epoch_num))
-    simclr_model.load_state_dict(torch.load(model_fp, map_location=args.device.type))
+    renamed_state_dict = rename_keys(torch.load(model_fp, map_location=args.device.type))
+
+    simclr_model.load_state_dict(renamed_state_dict)
     simclr_model = simclr_model.to(args.device)
     simclr_model.eval()
 

@@ -11,7 +11,7 @@ seed: 42 # sacred handles automatic seeding when passed in the config
 batch_size: 128
 image_size: 224
 start_epoch: 0
-epochs: 100
+epochs: 1000
 dataset: "C101" # STL10
 pretrain: True 
 
@@ -26,7 +26,7 @@ temperature: 0.5 # see appendix B.7.: Optimal temperature under different batch 
 
 # reload options
 model_path: "save" # set to the directory containing `checkpoint_##.tar` 
-epoch_num: 100 # set to checkpoint number
+epoch_num: 1000 # set to checkpoint number
 reload: False
 
 # logistic regression options
